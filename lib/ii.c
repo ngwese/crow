@@ -253,19 +253,24 @@ uint8_t ii_broadcast( uint8_t address
 // Leader Request
 // consider how this should be integrated. what args??
 uint8_t ii_query( uint8_t address
+                , uint8_t effective_address
                 , uint8_t cmd
                 , float*  data
                 )
 {
     static uint8_t rx_buf[1+II_MAX_BROADCAST_LEN];
     const ii_Cmd_t* c = ii_find_command(address, cmd);
+    printf("ii_Cmd_t* c = 0x%x\n", c);
     uint8_t byte = _ii_make_packet( rx_buf
                     , c
                     , cmd
                     , data
                     );
+    printf("_ii_make_packet = %d\n", byte);
     if( byte == 0 ){ return 2; }
-    if( I2C_LeadRx( address
+    printf("\nwould I2C_LeadRx\n");
+    return 0;
+    if( I2C_LeadRx( effective_address
                   , rx_buf
                   , byte
                   , type_size( c->return_type )

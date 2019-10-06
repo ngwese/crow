@@ -51,6 +51,7 @@ uint8_t ii_broadcast( uint8_t address
                     , float*  data
                     );
 uint8_t ii_query( uint8_t address
+                , uint8_t effective_address
                 , uint8_t cmd
                 , float*  data
                 );

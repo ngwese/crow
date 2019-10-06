@@ -364,7 +364,9 @@ static int _ii_get( lua_State *L )
             data[i] = luaL_checknumber(L, i+3); // 1-ix'd
         }
     }
-    if(ii_query( luaL_checkinteger(L, 1) // address
+    uint8_t addr = luaL_checkinteger(L, 1); // address
+    if(ii_query( addr
+            , addr
             , luaL_checkinteger(L, 2) // command
             , data
             )){ printf("ii_query failed\n"); }
@@ -398,7 +400,8 @@ static int _txi_get( lua_State *L )
 
     printf("fin: addr, port = %d, %d\n", address, port);
 
-    if(ii_query(address
+    if(ii_query( addr
+            , address
             , port
             , data
             )){ printf("ii_query failed\n"); }
