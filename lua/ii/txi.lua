@@ -3,6 +3,7 @@ do return
 , manufacturer = 'bpc'
 , i2c_address  = 0x68
 , lua_name     = 'txi'
+, getter_impl  = 'txi_get'
 , commands     =
   { { name = 'nop'
     , cmd = 99
@@ -10,15 +11,16 @@ do return
     }
   }
 , getters =
-  { { name = 'in'
-    , cmd  = 0 + get_offset
-    , args = { 'channel', u8 }
-    , retval = { 'value', s16 }
-    }
-  , { name = 'param'
-    , cmd  = 2 + get_offset
+  {
+    { name = 'param'
+    , cmd  = 0x00
     , args = { 'channel', u8 }
     , retval = { 'value', u16 }
+    }
+    , { name = 'in'
+    , cmd  = 0x40
+    , args = { 'channel', u8 }
+    , retval = { 'value', s16 }
     }
   }
 }

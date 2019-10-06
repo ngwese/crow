@@ -1,6 +1,7 @@
 #include "lib/lualink.h"
 
 #include <string.h> // strcmp(), strlen()
+#include <stdbool.h>
 
 // Lua itself
 //#include "../submodules/lua/src/lua.h" // in header
@@ -377,6 +378,33 @@ static int _ii_address( lua_State *L )
     lua_settop(L, 0);
     return 0;
 }
+static int _txi_get( lua_State *L )
+{
+    printf("\ntxi_get\n");
+    // NOTE: this is based on TXReceive in teletype firmware
+    float data[4] = {0,0,0,0}; // always zero out data
+    int addr = luaL_checkinteger(L, 1); // base txi address
+    int what = luaL_checkinteger(L, 2);  // pseudo cmd
+    int input = luaL_checkinteger(L, 3) - 1; // input
+    printf("addr, what, input = %d, %d, %d\n", addr, what, input);
+
+    // offset address by input
+    u_int8_t address = addr + (input >> 2);
+
+    // convert pseudo command into true command
+    u_int8_t shift = (what & 0xf0) >> 4;
+    u_int8_t mode = (what & 0x0f);
+    u_int8_t port = (input & 3) + shift + (mode << 3);
+
+    printf("fin: addr, port = %d, %d\n", address, port);
+
+    if(ii_query(address
+            , port
+            , data
+            )){ printf("ii_query failed\n"); }
+    lua_settop(L, 0);
+    return 0;
+}
 static int _metro_start( lua_State* L )
 {
     static int idx = 0;
@@ -472,6 +500,7 @@ static const struct luaL_Reg libCrow[]=
     , { "ii_set"           , _ii_set           }
     , { "ii_get"           , _ii_get           }
     , { "ii_address"       , _ii_address       }
+    , { "txi_get"          , _txi_get          }
         // metro
     , { "metro_start"      , _metro_start      }
     , { "metro_stop"       , _metro_stop       }

@@ -23,7 +23,12 @@ function lua_getters(f)
     end
     g = g .. '}\n'
 
-    g = g .. 'function ' .. f.lua_name .. '.get(name,...)ii.get('
+    impl = 'ii.get'
+    if f.getter_impl ~= nil then
+      impl = f.getter_impl
+    end
+
+    g = g .. 'function ' .. f.lua_name .. '.get(name,...)' .. impl .. '('
       .. f.i2c_address .. ',' .. f.lua_name .. '.g[name],...)end\n'
     return g
 end
