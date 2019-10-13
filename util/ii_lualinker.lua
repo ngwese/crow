@@ -1,4 +1,5 @@
-get_offset = 0x80
+local descriptor = require('util/ii_descriptor')
+get_offset = descriptor.get_offset
 
 function make_lualink(files)
     local ll = '#pragma once\n\n'

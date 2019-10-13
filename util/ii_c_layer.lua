@@ -1,4 +1,5 @@
-get_offset = 0x80
+local descriptor = require('util/ii_descriptor')
+get_offset = descriptor.get_offset
 
 -- allows descriptor to use shorthand without stringifying
 void = 'ii_void'
@@ -62,7 +63,7 @@ function c_cmds(f)
         if v.get == true then
             c = c .. make_a_cmd( f.lua_name
                                , i
-                               , v.cmd + get_offset
+                               , v.cmd + descriptor.get_offset
                                , drop_last_arg( v.args )
                                , get_last_argtype( v.args )
                                )
@@ -88,8 +89,10 @@ function c_switch(f)
     local s = 'const ii_Cmd_t* ii_find_command( uint8_t address, uint8_t cmd ){\n'
            .. '\tswitch( address  ){\n'
     for _,f in ipairs(files) do
-        s = s .. '\t\tcase ' .. f.i2c_address .. ':\n'
-              .. '\t\t\tswitch( cmd ){\n'
+        for _, addr in ipairs(descriptor.addresses(f)) do
+          s = s .. '\t\tcase ' .. addr .. ':\n'
+        end
+        s = s .. '\t\t\tswitch( cmd ){\n'
         local ix = 0
         for _,v in ipairs( f.commands ) do
             -- setters
@@ -100,7 +103,7 @@ function c_switch(f)
         for _,v in ipairs( f.commands ) do
             if v.get == true then
                 -- implicit getter
-                s = s .. '\t\t\t\tcase ' .. (v.cmd + get_offset) .. ': return &'
+                s = s .. '\t\t\t\tcase ' .. (v.cmd + descriptor.get_offset) .. ': return &'
                       .. f.lua_name .. ix .. ';\n'
                 ix = ix + 1
             end
@@ -281,7 +284,10 @@ function make_c(f)
           .. '{\n'
           .. '\tswitch( address ){\n'
     for _,f in ipairs(files) do
-        c = c .. '\t\tcase ' .. f.i2c_address .. ': return ' .. f.lua_name .. '_help;\n'
+        for _, addr in ipairs(descriptor.addresses(f)) do
+          c = c .. '\t\tcase ' .. addr .. ':\n'
+        end
+        c = c .. '\t\t\treturn ' .. f.lua_name .. '_help;\n'
     end
     c = c .. '\t\tdefault: return "module not found\\n\\r";\n'
           .. '\t}\n'

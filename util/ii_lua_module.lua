@@ -1,23 +1,26 @@
-get_offset = 0x80
+local descriptor = require('util/ii_descriptor')
+get_offset = descriptor.get_offset
 
 function lua_cmds(f)
     local c = ''
+    local i2c_address = descriptor.base_address(f)
     local impl = 'ii.set'
     if f.set_impl ~= nil then
         impl = f.set_impl
     end
     for _,v in ipairs( f.commands ) do
         c = c .. 'function ' .. f.lua_name .. '.' .. v.name .. '(...)' .. impl .. '('
-          .. f.i2c_address .. ',' .. v.cmd .. ',...)end\n'
+          .. i2c_address .. ',' .. v.cmd .. ',...)end\n'
     end
     return c
 end
 
 function lua_getters(f)
+    local i2c_address = descriptor.base_address(f)
     local g = f.lua_name .. '.g={\n'
     for _,v in ipairs( f.commands ) do
         if v.get == true then
-            g = g .. '\t[\'' .. v.name .. '\']=' .. (v.cmd + get_offset) .. ',\n'
+            g = g .. '\t[\'' .. v.name .. '\']=' .. (v.cmd + descriptor.get_offset) .. ',\n'
         end
     end
     if f.getters ~= nil then
@@ -32,7 +35,7 @@ function lua_getters(f)
     end
 
     g = g .. 'function ' .. f.lua_name .. '.get(name,...)' .. impl .. '('
-      .. f.i2c_address .. ',' .. f.lua_name .. '.g[name],...)end\n'
+      .. i2c_address .. ',' .. f.lua_name .. '.g[name],...)end\n'
     return g
 end
 
@@ -40,7 +43,7 @@ function lua_events(f)
     local e = f.lua_name .. '.e={\n'
     for _,v in ipairs( f.commands ) do
         if v.get == true then
-            e = e .. '\t[' .. (v.cmd + get_offset) .. ']=\'' .. v.name .. '\',\n'
+            e = e .. '\t[' .. (v.cmd + descriptor.get_offset) .. ']=\'' .. v.name .. '\',\n'
         end
     end
     if f.getters ~= nil then
