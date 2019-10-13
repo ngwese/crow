@@ -2,8 +2,12 @@ get_offset = 0x80
 
 function lua_cmds(f)
     local c = ''
+    local impl = 'ii.set'
+    if f.set_impl ~= nil then
+        impl = f.set_impl
+    end
     for _,v in ipairs( f.commands ) do
-        c = c .. 'function ' .. f.lua_name .. '.' .. v.name .. '(...)ii.set('
+        c = c .. 'function ' .. f.lua_name .. '.' .. v.name .. '(...)' .. impl .. '('
           .. f.i2c_address .. ',' .. v.cmd .. ',...)end\n'
     end
     return c
@@ -22,8 +26,12 @@ function lua_getters(f)
         end
     end
     g = g .. '}\n'
+    local impl = 'ii.get'
+    if f.get_impl ~= nil then
+        impl = f.get_impl
+    end
 
-    g = g .. 'function ' .. f.lua_name .. '.get(name,...)ii.get('
+    g = g .. 'function ' .. f.lua_name .. '.get(name,...)' .. impl .. '('
       .. f.i2c_address .. ',' .. f.lua_name .. '.g[name],...)end\n'
     return g
 end
