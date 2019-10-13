@@ -22,14 +22,14 @@ OBJDUMP=arm-none-eabi-objdump
 
 FENNEL=fennel
 
-# BIN=$(CP) -O ihex 
+# BIN=$(CP) -O ihex
 BIN = $(TARGET).bin
 
 DEFS = -DUSE_STDPERIPH_DRIVER -DSTM32F7XX -DARM_MATH_CM7 -DHSE_VALUE=8000000
 DEFS += -DSTM32F722xx -DUSE_HAL_DRIVER
 STARTUP = $(CUBE)/CMSIS/Device/ST/STM32F7xx/Source/Templates/gcc/startup_stm32f722xx.s
 
-# MCFLAGS = -march=armv4e-m -mthumb 
+# MCFLAGS = -march=armv4e-m -mthumb
 # MCFLAGS = -mthumb -march=armv4e-m -mfloat-abi=hard -mfpu=fpv4-sp-d16
 MCFLAGS = -mthumb -march=armv7e-m -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
@@ -141,7 +141,7 @@ $(BUILD_DIR)/iihelp.lua: $(II_SRC) util/ii_lua_help.lua | $(BUILD_DIR)
 	@lua util/ii_lua_help.lua $(II_SRCD) $@
 	@echo lua $@
 
-$(BUILD_DIR)/ii_c_layer.h: $(II_SRC) util/ii_c_layer.lua | $(BUILD_DIR)
+$(BUILD_DIR)/ii_c_layer.c: $(II_SRC) lib/ii_c_layer.h util/ii_c_layer.lua | $(BUILD_DIR)
 	@lua util/ii_c_layer.lua $(II_SRCD) $@
 	@echo lua $@
 
@@ -170,12 +170,13 @@ LUALIB_OBJS=	lauxlib.o lbaselib.o lbitlib.o lcorolib.o ldblib.o liolib.o \
 # build the objects from c source
 OBJDIR = .
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o)
+OBJS += $(BUILD_DIR)/ii_c_layer.o
 OBJS += $(addprefix $(LUAS)/,$(LUACORE_OBJS) $(LUALIB_OBJS) )
 OBJS += Startup.o
 
 # specific objects that require built dependencies (ii)
 $(OBJDIR)/lib/lualink.o: $(LUA_PP) $(BUILD_DIR)/ii_lualink.h
-$(OBJDIR)/lib/ii.o: $(BUILD_DIR)/ii_c_layer.h
+$(OBJDIR)/lib/ii.o: $(BUILD_DIR)/ii_c_layer.c
 
 # generate the build directory
 $(BUILD_DIR):
